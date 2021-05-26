@@ -1,0 +1,132 @@
+# KNN Algorithm
+
+### Problem Statement:- 
+
+  - Build a KNN model for glass dataset to classify the glass type.
+  
+### Data Understanding and preparation
+
+```{r}
+library(readxl)
+glass <- read.csv("~/desktop/Digi 360/Module 18/glass.csv")
+head(glass)
+```
+
+```{r}
+str(glass)
+```
+
+### Normalization
+
+```{r}
+#Normalization
+normalize <- function(x) {return ((x - min(x)) / (max(x) - min(x))) }
+```
+
+```{r}
+glass.n <- as.data.frame(lapply(glass[,1:9], normalize))
+head(glass.n)
+```
+
+### Splitting the Dataset
+
+```{r}
+set.seed(123)
+dat.d <- sample(1:nrow(glass.n),size=nrow(glass.n)*0.7,replace = FALSE) #random selection of 70% data.
+ 
+train <- glass[dat.d,] # 70% training data
+test <- glass[-dat.d,] # remaining 30% test data
+```
+
+```{r}
+head(train)
+```
+
+```{r}
+head(test)
+```
+
+```{r}
+#Creating seperate dataframe for 'Creditability' feature which is our target.
+train_labels <- glass[dat.d,10]
+test_labels <-glass[-dat.d,10]
+```
+
+```{r}
+head(train_labels)
+```
+
+```{r}
+head(test_labels)
+```
+
+```{r}
+# Load class package
+library(class)
+
+```
+
+```{r}
+#Find the number of observation
+NROW(train_labels) 
+```
+
+So, we have 149 observations in our training data set. The square root of 149 is around 12.24, therefore we’ll create two models. One with ‘K’ value as 12 and the other model with a ‘K’ value as 13.
+
+### Building the model for k = 12 and k =13
+
+```{r}
+knn.12 <- knn(train=train, test=test, cl=train_labels, k=12)
+knn.13 <- knn(train=train, test=test, cl=train_labels, k=13)
+
+```
+
+```{r}
+#Calculate the proportion of correct classification for k = 12, 13
+ACC.12 <- 100 * sum(test_labels == knn.12)/NROW(test_labels)
+ACC.13 <- 100 * sum(test_labels == knn.13)/NROW(test_labels)
+```
+
+```{r}
+ACC.12
+```
+
+```{r}
+ACC.13
+```
+
+### Optimizing the k value
+
+```{r}
+i=1
+k.optm=1
+for (i in 1:50){
+  knn.mod <- knn(train=train, test=test, cl=train_labels, k=i)
+  k.optm[i] <- 100 * sum(test_labels == knn.mod)/NROW(test_labels)
+  k=i
+  cat(k,'=',k.optm[i],'')}
+```
+
+### Accuracy Plot
+
+```{r}
+#Accuracy plot
+plot(k.optm, type="b", xlab="K- Value",ylab="Accuracy level")
+```
+
+### Model building for k =1
+
+```{r}
+knn.1 <- knn(train=train, test=test, cl=train_labels, k=1)
+ACC.1 <- 100 * sum(test_labels == knn.1)/NROW(test_labels)
+
+```
+
+```{r}
+ACC.1
+```
+
+### Conclusion:- 
+
+  - Model has been built for different K values
+  - The highest accuarcy we can see at k = 1.
